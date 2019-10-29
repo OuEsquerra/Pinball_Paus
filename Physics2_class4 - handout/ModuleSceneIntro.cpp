@@ -9,7 +9,7 @@
 
 ModuleSceneIntro::ModuleSceneIntro(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
-	circle = box = rick = NULL;
+	ball_tex = Right_Flipper_tex = Left_Flipper_tex = NULL;
 	ray_on = false;
 	sensed = false;
 }
@@ -25,14 +25,29 @@ bool ModuleSceneIntro::Start()
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
-	circle = App->textures->Load("pinball/wheel.png"); 
-	box = App->textures->Load("pinball/crate.png");
-	rick = App->textures->Load("pinball/rick_head.png");
+	ball_tex = App->textures->Load("pinball/ball.png"); 
+	
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 
-	board = App->textures->Load("pinball/clear_board.png");
+	board_tex = App->textures->Load("pinball/clear_board.png");
 	
-	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
+	Left_Flipper_tex = App->textures->Load("pinball/Left_Flipper.png");
+
+	Right_Flipper_tex = App->textures->Load("pinball/Right_Flipper.png");
+
+	//sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
+
+	Clear_Boards.add(App->physics->CreateChain(0, 0, Clear_Board, 64));
+
+	flippers.add(App->physics->CreateChain(211,560, Left_Flipper, 19)); //19 is the points of the flipper
+
+	flippers.add(App->physics->CreateChain(441, 560, Right_Flipper, 19));
+
+	circles.add(App->physics->CreateCircle(620, 600, 15));
+
+	circles.getLast()->data->listener = this;
+
+
 
 	return ret;
 }
@@ -48,74 +63,47 @@ bool ModuleSceneIntro::CleanUp()
 // Update: draw background
 update_status ModuleSceneIntro::Update()
 {
-	// Prepare for raycast ------------------------------------------------------
-	iPoint mouse;
-	mouse.x = App->input->GetMouseX();
-	mouse.y = App->input->GetMouseY();
-	int ray_hit = ray.DistanceTo(mouse);
+	App->renderer->Blit(board_tex, 0, 0, &board_rect);
 
-	fVector normal(0.0f, 0.0f);
+	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
+	{
+		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 15));
+		circles.getLast()->data->listener = this;
+	}
+
 	// All draw functions ------------------------------------------------------
 	p2List_item<PhysBody*>* c = circles.getFirst();
 
-	while(c != NULL)
-	{
+	if (c != NULL) {
 		int x, y;
 		c->data->GetPosition(x, y);
-		if(c->data->Contains(App->input->GetMouseX(), App->input->GetMouseY()))
-			App->renderer->Blit(circle, x, y, NULL, 1.0f, c->data->GetRotation());
-		c = c->next;
+		App->renderer->Blit(ball_tex, x, y, NULL, 1.0f);
 	}
-	c = boxes.getFirst();
 
-	while(c != NULL)
+	c = flippers.getFirst();
+
+	int x, y = 0;
+
+	if (c != NULL)
 	{
-		int x, y;
 		c->data->GetPosition(x, y);
-		App->renderer->Blit(box, x, y, NULL, 1.0f, c->data->GetRotation());
-		if(ray_on)
-		{
-			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
-			if(hit >= 0)
-				ray_hit = hit;
-		}
-		c = c->next;
+		App->renderer->Blit(Left_Flipper_tex, x, y, NULL, 1.0f, c->data->GetRotation());
 	}
-	c = ricks.getFirst();
-
-	while(c != NULL)
+	c = c->next;
+	if (c != NULL)
 	{
-		int x, y;
 		c->data->GetPosition(x, y);
-		App->renderer->Blit(rick, x, y, NULL, 1.0f, c->data->GetRotation());
-		c = c->next;
+		App->renderer->Blit(Right_Flipper_tex, x - 95, y, NULL, 1.0f, c->data->GetRotation());
 	}
-	// ray -----------------
-	if(ray_on == true)
-	{
-		fVector destination(mouse.x-ray.x, mouse.y-ray.y);
-		destination.Normalize();
-		destination *= ray_hit;
-
-		App->renderer->DrawLine(ray.x, ray.y, ray.x + destination.x, ray.y + destination.y, 255, 255, 255);
-
-		if(normal.x != 0.0f)
-			App->renderer->DrawLine(ray.x + destination.x, ray.y + destination.y, ray.x + destination.x + normal.x * 25.0f, ray.y + destination.y + normal.y * 25.0f, 100, 255, 100);
-	}
-
-
-
-	App->renderer->Blit(board, 0, 0, &board_rect );
-
 
 	return UPDATE_CONTINUE;
 }
 
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
-	int x, y;
+	//int x, y;
 
-	App->audio->PlayFx(bonus_fx);
+	//App->audio->PlayFx(bonus_fx);
 
 	/*
 	if(bodyA)

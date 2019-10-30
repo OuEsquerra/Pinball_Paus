@@ -37,17 +37,64 @@ bool ModuleSceneIntro::Start()
 
 	//sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
 
-	Clear_Boards.add(App->physics->CreateChain(0, 0, Clear_Board, 64));
+	cooler_bump = App->physics->CreateCircle(333 , 240 , 4, b2_staticBody);
 
-	flippers.add(App->physics->CreateChain(211,560, Left_Flipper, 19)); //19 is the points of the flipper
+	Clear_Boards.add(App->physics->CreateChain(0, 0, Clear_Board, 75,b2_staticBody));
 
-	flippers.add(App->physics->CreateChain(441, 560, Right_Flipper, 19));
+	triangles.add(App->physics->CreateChain(0, 0, left_triangles_points, 11, b2_staticBody));
 
-	circles.add(App->physics->CreateCircle(620, 600, 15));
+	triangles.add(App->physics->CreateChain(0, 0, right_triangles_points, 11, b2_staticBody));
+
+	left_flipper=App->physics->CreateFlipper(211,560,Left_Flipper, 17 ); //19 is the points of the flipper
+
+	right_flipper=App->physics->CreateFlipper(441, 560, Right_Flipper, 17);
+
+	left_L = App->physics->CreateChain(0, 0, left_L_point, 11, b2_staticBody);
+
+	right_L = App->physics->CreateChain(0, 0, right_L_point, 11, b2_staticBody);
+
+	cooler = App->physics->CreateChain(0, 0, cooler_point, 29, b2_staticBody);
+
+	//Body to RevoluteJoint the FLipper (Left First)
+	left_flipper_joint = App->physics->CreateCircle( 215 , 582 , 2 , b2_staticBody);
+
+	b2RevoluteJointDef revoluteJointDef_left;
+	revoluteJointDef_left.bodyA = left_flipper_joint->body;
+	revoluteJointDef_left.bodyB = left_flipper->body;
+	revoluteJointDef_left.collideConnected = false;
+
+	revoluteJointDef_left.enableLimit = true;
+	revoluteJointDef_left.lowerAngle = -25 * DEGTORAD;
+	revoluteJointDef_left.upperAngle = 25 * DEGTORAD;
+
+	revoluteJointDef_left.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
+	revoluteJointDef_left.localAnchorB.Set(PIXEL_TO_METERS(10), PIXEL_TO_METERS(15));
+
+	b2RevoluteJoint* left_flipper_joint;
+	left_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&revoluteJointDef_left);
+
+	//Body to RevoluteJoint the FLipper (Right First)
+	right_flipper_joint = App->physics->CreateCircle(440, 582, 2, b2_staticBody);
+	
+	b2RevoluteJointDef revoluteJointDef_right;
+	revoluteJointDef_right.bodyA = right_flipper_joint->body;
+	revoluteJointDef_right.bodyB = right_flipper->body;
+	revoluteJointDef_right.collideConnected = false;
+
+	revoluteJointDef_right.enableLimit = true;
+	revoluteJointDef_right.lowerAngle = -25 * DEGTORAD;
+	revoluteJointDef_right.upperAngle = 25 * DEGTORAD;
+
+	revoluteJointDef_right.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
+	revoluteJointDef_right.localAnchorB.Set(PIXEL_TO_METERS(-10), PIXEL_TO_METERS(15));
+
+	b2RevoluteJoint* right_flipper_joint;
+	right_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&revoluteJointDef_right);
+
+	//Starting Ball
+	circles.add(App->physics->CreateCircle(620, 600, 15, b2_dynamicBody));
 
 	circles.getLast()->data->listener = this;
-
-
 
 	return ret;
 }
@@ -67,35 +114,49 @@ update_status ModuleSceneIntro::Update()
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
-		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 15));
+		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 15, b2_dynamicBody));
 		circles.getLast()->data->listener = this;
+	}
+
+
+
+	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
+	{
+		left_flipper->body->ApplyTorque(-150, true); 
+	}
+	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_UP)
+	{
+		left_flipper->body->ApplyTorque(100, true);
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
+	{
+		right_flipper->body->ApplyTorque(150, true);
+	}
+	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_UP)
+	{
+		right_flipper->body->ApplyTorque(-100, true);
 	}
 
 	// All draw functions ------------------------------------------------------
 	p2List_item<PhysBody*>* c = circles.getFirst();
 
-	if (c != NULL) {
+	while (c != NULL) {
 		int x, y;
 		c->data->GetPosition(x, y);
 		App->renderer->Blit(ball_tex, x, y, NULL, 1.0f);
-	}
 
-	c = flippers.getFirst();
+		c = c->next;
+	}
 
 	int x, y = 0;
-
-	if (c != NULL)
-	{
-		c->data->GetPosition(x, y);
-		App->renderer->Blit(Left_Flipper_tex, x, y, NULL, 1.0f, c->data->GetRotation());
-	}
-	c = c->next;
-	if (c != NULL)
-	{
-		c->data->GetPosition(x, y);
-		App->renderer->Blit(Right_Flipper_tex, x - 95, y, NULL, 1.0f, c->data->GetRotation());
-	}
-
+	
+	left_flipper->GetPosition(x, y);
+	App->renderer->Blit(Left_Flipper_tex, x, y, NULL, 1.0f, left_flipper->GetRotation() , 0 ,0);
+	
+	right_flipper->GetPosition(x, y);
+	App->renderer->Blit(Right_Flipper_tex, x - 95, y, NULL, 1.0f, right_flipper->GetRotation(),95,0);
+	
 	return UPDATE_CONTINUE;
 }
 

@@ -75,10 +75,10 @@ update_status ModulePhysics::PreUpdate()
 	return UPDATE_CONTINUE;
 }
 
-PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
+PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType type)
 {
 	b2BodyDef body;
-	body.type = b2_dynamicBody;
+	body.type = type;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
@@ -123,6 +123,40 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
 
 	return pbody;
 }
+PhysBody* ModulePhysics::CreateFlipper(int x, int y, int* points,int size)
+{
+	b2BodyDef body;
+	body.type = b2_dynamicBody;
+	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+
+	b2Body* b = world->CreateBody(&body);
+	b2PolygonShape box;
+
+	b2Vec2* p = new b2Vec2[size / 2];
+
+	for (uint i = 0; i < size / 2; ++i)
+	{
+		p[i].x = PIXEL_TO_METERS(points[i * 2 + 0]);
+		p[i].y = PIXEL_TO_METERS(points[i * 2 + 1]);
+	}
+
+	box.Set(p, size / 2);
+
+	b2FixtureDef fixture;
+	fixture.shape = &box;
+	fixture.density = 1.0f;
+
+	b->CreateFixture(&fixture);
+
+	PhysBody* pbody = new PhysBody();
+	pbody->body = b;
+	b->SetUserData(pbody);
+	pbody->height = pbody->width = 0;
+
+	return pbody;
+
+	return pbody;
+}
 
 PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int height)
 {
@@ -151,10 +185,10 @@ PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int heig
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
+PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size,b2BodyType type)
 {
 	b2BodyDef body;
-	body.type = b2_staticBody;
+	body.type = type;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
@@ -404,4 +438,9 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 
 	if(physB && physB->listener != NULL)
 		physB->listener->OnCollision(physB, physA);
+}
+
+b2World* ModulePhysics::GetWorld()
+{
+	return world;
 }

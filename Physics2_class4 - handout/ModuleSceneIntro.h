@@ -21,7 +21,19 @@ public:
 	p2List<PhysBody*> circles;
 	p2List<PhysBody*> boxes;
 	p2List<PhysBody*> Clear_Boards;
-	p2List<PhysBody*> flippers;
+
+
+	PhysBody* left_flipper;
+	PhysBody* right_flipper;
+	PhysBody* left_flipper_joint;
+	PhysBody* right_flipper_joint;
+	PhysBody* left_L;
+	PhysBody* right_L;
+	PhysBody* cooler;
+	PhysBody* cooler_bump;
+	p2List<PhysBody*> triangles;
+	
+	
 
 	PhysBody* sensor;
 	bool sensed;
@@ -30,48 +42,109 @@ public:
 	SDL_Texture* board_tex;
 	SDL_Texture* Left_Flipper_tex;
 	SDL_Texture* Right_Flipper_tex;
+
 	uint bonus_fx;
+
 	p2Point<int> ray;
 	bool ray_on;
+
 	SDL_Rect board_rect = { 0,0,700,650 };
 	
 private:
 
-	int Clear_Board[66] =
-	{
-		678, 647,
-		507, 48,
-		501, 39,
-		493, 31,
-		482, 24,
-		470, 18,
-		453, 13,
-		438, 10,
-		423, 8,
-		299, 8,
-		282, 7,
-		268, 8,
-		248, 11,
-		232, 16,
-		221, 21,
-		209, 28,
-		199, 37,
-		192, 47,
-		51, 542,
-		237, 651,
-		237, 730,
-		412, 730,
-		412, 650,
-		599, 542,
-		548, 351,
-		513, 351,
-		482, 335,
-		520, 244,
-		527, 244,
-		632, 650,
-		639, 680,
-		688, 680,
-		678, 647
+	int Clear_Board[76] = {
+	630, 650,
+	526, 246,
+	483, 333,
+	513, 350,
+	548, 350,
+	597, 543,
+	408, 648,
+	406, 710,
+	234, 708,
+	230, 648,
+	50, 542,
+	106, 352,
+	146, 348,
+	173, 333,
+	146, 244,
+	136, 240,
+	158, 164,
+	184, 236,
+	160, 153,
+	193, 47,
+	198, 36,
+	205, 29,
+	213, 25,
+	221, 20,
+	230, 15,
+	243, 11,
+	263, 8,
+	422, 8,
+	436, 8,
+	449, 9,
+	461, 13,
+	475, 20,
+	491, 30,
+	506, 45,
+	680, 650,
+	682, 669,
+	639, 673,
+	630, 650
+	};
+
+	int cooler_point[30] = {
+	289, 173,
+	334, 168,
+	383, 174,
+	385, 244,
+	381, 241,
+	372, 187,
+	360, 177,
+	345, 175,
+	334, 174,
+	319, 175,
+	307, 178,
+	296, 187,
+	287, 239,
+	283, 243,
+	289, 173
+	};
+
+	int left_L_point[12] = {
+	142, 388,
+	116, 510,
+	208, 561,
+	205, 566,
+	113, 511,
+	142, 388
+	};
+
+	int right_L_point[12] = {
+	440, 562,
+	442, 564,
+	542, 510,
+	517, 387,
+	536, 507,
+	440, 562
+	};
+
+	int left_triangles_points[12] = {
+	432, 498,
+	470, 390,
+	481, 394,
+	493, 477,
+	443, 503,
+	432, 498
+	};
+
+	int right_triangles_points[12] = {
+	188, 390,
+	175, 397,
+	165, 482,
+	211, 504,
+	220, 495,
+	188, 390
 	};
 	
 	int Left_Flipper[20] = {

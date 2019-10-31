@@ -92,7 +92,7 @@ bool ModuleSceneIntro::Start()
 	right_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&revoluteJointDef_right);
 
 	//Starting Ball
-	circles.add(App->physics->CreateCircle(620, 600, 15, b2_dynamicBody));
+	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody));
 
 	circles.getLast()->data->listener = this;
 
@@ -114,28 +114,35 @@ update_status ModuleSceneIntro::Update()
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
-		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 15, b2_dynamicBody));
+		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 12, b2_dynamicBody));
 		circles.getLast()->data->listener = this;
 	}
 
-
-
-	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
+	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_DOWN)
 	{
-		left_flipper->body->ApplyTorque(-150, true); 
+		left_flipper->body->ApplyTorque(-200, true);
 	}
-	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_UP)
+	else if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
 	{
-		left_flipper->body->ApplyTorque(100, true);
+		left_flipper->body->ApplyTorque(-100, true); 
 	}
+	else
+	{
+		left_flipper->body->ApplyTorque(50, true);
+	}
+	
 
 	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
 	{
-		right_flipper->body->ApplyTorque(150, true);
+		right_flipper->body->ApplyTorque(200, true);
 	}
-	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_UP)
+	else if (App->input->GetKey(SDL_SCANCODE_D) == KEY_UP)
 	{
-		right_flipper->body->ApplyTorque(-100, true);
+		right_flipper->body->ApplyTorque(100, true);
+	}
+	else
+	{
+		right_flipper->body->ApplyTorque(-50, true);
 	}
 
 	// All draw functions ------------------------------------------------------

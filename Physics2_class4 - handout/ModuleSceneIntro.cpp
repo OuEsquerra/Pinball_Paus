@@ -53,23 +53,23 @@ bool ModuleSceneIntro::Start()
 	//BOARD COLLIDERS (CHAINS)------------------------------------------------
 	cooler_bump = App->physics->CreateCircle(333 , 240 , 4, b2_staticBody);
 
-	cooler_bump = App->physics->CreateCircle(333, 240, 4, b2_staticBody);
+	top_jet = App->physics->CreateCircle(340, 85, 9, b2_staticBody, 2.0f );
 
-	cooler_bump = App->physics->CreateCircle(333, 240, 4, b2_staticBody);
+	left_jet = App->physics->CreateCircle(374,110, 9, b2_staticBody, 1 );
 
-	cooler_bump = App->physics->CreateCircle(333, 240, 4, b2_staticBody);
+	right_jet = App->physics->CreateCircle(306, 110, 9, b2_staticBody, 1 );
 
-	Clear_Boards.add(App->physics->CreateChain(0, 0, Clear_Board, 75,b2_staticBody));
+	Clear_Boards.add(App->physics->CreateChain(0, 0, Clear_Board, 75,b2_staticBody , 0.0f));
 
-	triangles.add(App->physics->CreateChain(0, 0, left_triangles_points, 11, b2_staticBody));
+	triangles.add(App->physics->CreateChain(0, 0, left_triangles_points, 11, b2_staticBody , 1.5f  ));
 
-	triangles.add(App->physics->CreateChain(0, 0, right_triangles_points, 11, b2_staticBody));
+	triangles.add(App->physics->CreateChain(0, 0, right_triangles_points, 11, b2_staticBody , 1.5f  ));
 
 	left_L = App->physics->CreateChain(0, 0, left_L_point, 11, b2_staticBody);
 
 	right_L = App->physics->CreateChain(0, 0, right_L_point, 11, b2_staticBody);
 
-	cooler = App->physics->CreateChain(0, 0, cooler_point, 29, b2_staticBody);
+	cooler = App->physics->CreateChain(0, 0, cooler_point, 29, b2_staticBody, 0.0f);
 	
 	top_left_chain = App->physics->CreateChain(0, 0, top_left_chain_ponits, 33, b2_staticBody);
 
@@ -80,9 +80,9 @@ bool ModuleSceneIntro::Start()
 	top_right_chain = App->physics->CreateChain(0, 0, top_right_chain_points, 37, b2_staticBody);
 
 	//FLIPPERS-------------------------------------------------------------------
-	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17); //17 is the points of the flipper
+	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17,1.0f , 0.1f); //17 is the points of the flipper
 
-	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17);
+	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17, 1.0f, 0.1f);
 
 	piston = App->physics->CreateRectangle(630, 630, 40, 30);
 
@@ -90,7 +90,7 @@ bool ModuleSceneIntro::Start()
 	createPistonJoint();
 
 	//Starting Ball
-	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody));
+	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f , 1.0f));
 
 	circles.getLast()->data->listener = this;
 
@@ -116,7 +116,7 @@ update_status ModuleSceneIntro::Update()
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
-		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 12, b2_dynamicBody));
+		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 12, b2_dynamicBody, 0.0f, 1.0f));
 		circles.getLast()->data->listener = this;
 	}
 

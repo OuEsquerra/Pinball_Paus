@@ -51,6 +51,12 @@ bool ModuleSceneIntro::Start()
 	//BOARD COLLIDERS (CHAINS)------------------------------------------------
 	cooler_bump = App->physics->CreateCircle(333 , 240 , 4, b2_staticBody);
 
+	cooler_bump = App->physics->CreateCircle(333, 240, 4, b2_staticBody);
+
+	cooler_bump = App->physics->CreateCircle(333, 240, 4, b2_staticBody);
+
+	cooler_bump = App->physics->CreateCircle(333, 240, 4, b2_staticBody);
+
 	Clear_Boards.add(App->physics->CreateChain(0, 0, Clear_Board, 75,b2_staticBody));
 
 	triangles.add(App->physics->CreateChain(0, 0, left_triangles_points, 11, b2_staticBody));
@@ -63,46 +69,20 @@ bool ModuleSceneIntro::Start()
 
 	cooler = App->physics->CreateChain(0, 0, cooler_point, 29, b2_staticBody);
 	
+	top_left_chain = App->physics->CreateChain(0, 0, top_left_chain_ponits, 33, b2_staticBody);
+
+	top_center_left = App->physics->CreateChain(0, 0, top_center_left_points, 9, b2_staticBody);
+
+	top_center_right = App->physics->CreateChain(0, 0, top_center_right_points, 9, b2_staticBody);
+
+	top_right_chain = App->physics->CreateChain(0, 0, top_right_chain_points, 37, b2_staticBody);
+
 	//FLIPPERS-------------------------------------------------------------------
 	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17); //17 is the points of the flipper
 
 	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17);
 
-	//Body to RevoluteJoint the FLipper (Left First)
-	left_flipper_joint = App->physics->CreateCircle( 215 , 582 , 2 , b2_staticBody);
-
-	b2RevoluteJointDef revoluteJointDef_left;
-	revoluteJointDef_left.bodyA = left_flipper_joint->body;
-	revoluteJointDef_left.bodyB = left_flipper->body;
-	revoluteJointDef_left.collideConnected = false;
-
-	revoluteJointDef_left.enableLimit = true;
-	revoluteJointDef_left.lowerAngle = -25 * DEGTORAD;
-	revoluteJointDef_left.upperAngle = 25 * DEGTORAD;
-
-	revoluteJointDef_left.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
-	revoluteJointDef_left.localAnchorB.Set(PIXEL_TO_METERS(10), PIXEL_TO_METERS(15));
-
-	b2RevoluteJoint* left_flipper_joint;
-	left_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&revoluteJointDef_left);
-
-	//Body to RevoluteJoint the FLipper (Right First)
-	right_flipper_joint = App->physics->CreateCircle(440, 582, 2, b2_staticBody);
-	
-	b2RevoluteJointDef revoluteJointDef_right;
-	revoluteJointDef_right.bodyA = right_flipper_joint->body;
-	revoluteJointDef_right.bodyB = right_flipper->body;
-	revoluteJointDef_right.collideConnected = false;
-
-	revoluteJointDef_right.enableLimit = true;
-	revoluteJointDef_right.lowerAngle = -25 * DEGTORAD;
-	revoluteJointDef_right.upperAngle = 25 * DEGTORAD;
-
-	revoluteJointDef_right.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
-	revoluteJointDef_right.localAnchorB.Set(PIXEL_TO_METERS(-10), PIXEL_TO_METERS(15));
-
-	b2RevoluteJoint* right_flipper_joint;
-	right_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&revoluteJointDef_right);
+	createFlipperJoints();
 
 	//Starting Ball
 	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody));
@@ -245,4 +225,43 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 
 	score += board->score_value;
 	*/
+}
+
+void ModuleSceneIntro::createFlipperJoints()
+{
+	//Body to RevoluteJoint the FLipper (Left First)
+	left_flipper_joint = App->physics->CreateCircle(215, 582, 2, b2_staticBody);
+
+	b2RevoluteJointDef revoluteJointDef_left;
+	revoluteJointDef_left.bodyA = left_flipper_joint->body;
+	revoluteJointDef_left.bodyB = left_flipper->body;
+	revoluteJointDef_left.collideConnected = false;
+
+	revoluteJointDef_left.enableLimit = true;
+	revoluteJointDef_left.lowerAngle = -25 * DEGTORAD;
+	revoluteJointDef_left.upperAngle = 25 * DEGTORAD;
+
+	revoluteJointDef_left.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
+	revoluteJointDef_left.localAnchorB.Set(PIXEL_TO_METERS(10), PIXEL_TO_METERS(15));
+
+	b2RevoluteJoint* left_flipper_joint;
+	left_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&revoluteJointDef_left);
+
+	//Body to RevoluteJoint the FLipper (Right First)
+	right_flipper_joint = App->physics->CreateCircle(440, 582, 2, b2_staticBody);
+
+	b2RevoluteJointDef revoluteJointDef_right;
+	revoluteJointDef_right.bodyA = right_flipper_joint->body;
+	revoluteJointDef_right.bodyB = right_flipper->body;
+	revoluteJointDef_right.collideConnected = false;
+
+	revoluteJointDef_right.enableLimit = true;
+	revoluteJointDef_right.lowerAngle = -25 * DEGTORAD;
+	revoluteJointDef_right.upperAngle = 25 * DEGTORAD;
+
+	revoluteJointDef_right.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
+	revoluteJointDef_right.localAnchorB.Set(PIXEL_TO_METERS(-10), PIXEL_TO_METERS(15));
+
+	b2RevoluteJoint* right_flipper_joint;
+	right_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&revoluteJointDef_right);
 }

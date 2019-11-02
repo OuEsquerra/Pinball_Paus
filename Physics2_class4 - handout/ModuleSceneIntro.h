@@ -25,6 +25,7 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
+	void createFlipperJoints();
 
 public:
 	p2List<PhysBody*> circles;
@@ -40,7 +41,14 @@ public:
 	PhysBody* right_L;
 	PhysBody* cooler;
 	PhysBody* cooler_bump;
+	PhysBody* top_left_chain;
+	PhysBody* top_center_left;
+	PhysBody* top_center_right;
+	PhysBody* top_right_chain;
+
 	p2List<PhysBody*> triangles;
+
+	p2List<PhysBody*> jets;
 	
 	
 
@@ -107,6 +115,64 @@ private:
 	682, 669,
 	639, 673,
 	630, 650
+	};
+
+	int top_left_chain_ponits[34] = {
+	214, 104,
+	223, 61,
+	235, 51,
+	245, 45,
+	255, 41,
+	266, 40,
+	282, 38,
+	294, 38,
+	302, 38,
+	302, 43,
+	268, 52,
+	257, 126,
+	251, 126,
+	249, 103,
+	222, 101,
+	211, 137,
+	214, 104
+	};
+
+	int top_right_chain_points[38] = {
+	400, 41,
+	400, 50,
+	416, 50,
+	416, 100,
+	460, 161,
+	451, 83,
+	483, 83,
+	498, 167,
+	498, 176,
+	495, 185,
+	472, 238,
+	501, 178,
+	501, 155,
+	481, 69,
+	471, 59,
+	457, 50,
+	441, 44,
+	425, 41,
+	400, 41
+	};
+
+	int top_center_left_points[10] = {
+	329, 37,
+	337, 37,
+	337, 48,
+	329, 48,
+	329, 37
+	};
+
+	int top_center_right_points[10] = {
+	364, 37,
+	370, 37,
+	370, 48,
+	364, 48,
+	364, 37
 	};
 
 	int cooler_point[30] = {

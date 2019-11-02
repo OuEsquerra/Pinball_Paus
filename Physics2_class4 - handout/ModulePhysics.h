@@ -53,6 +53,7 @@ public:
 	PhysBody* CreateRectangle(int x, int y, int width, int height, float restitution = 0.0f);
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
 	PhysBody* CreateChain(int x, int y, int* points, int size, b2BodyType type, float restitution = 0.5f);
+	PhysBody* CreateChainSensor(int x, int y, int* points, int size);
 	PhysBody* CreateFlipper(int x, int y, int* points,int size, float density = 1.0f,float restitution = 0.0f);
 	b2World* GetWorld();
 

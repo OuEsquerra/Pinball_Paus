@@ -27,8 +27,10 @@ public:
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
 	void createFlipperJoints();
 	void createPistonJoint();
+	void crateBall();
 
 public:
+
 	p2List<PhysBody*> circles;
 	p2List<PhysBody*> boxes;
 	p2List<PhysBody*> Clear_Boards;
@@ -55,7 +57,14 @@ public:
 	PhysBody* left_jet;
 	PhysBody* right_jet;
 	
-	
+	PhysBody* ball_block_sensor;
+	PhysBody* ball_block;
+
+	bool ball_sensor_active = false;
+	bool ball_block_active = false;
+
+
+	int ballCount = 1;
 
 	PhysBody* sensor;
 	bool sensed;
@@ -65,6 +74,7 @@ public:
 	SDL_Texture* cover_board_tex;
 	SDL_Texture* Left_Flipper_tex;
 	SDL_Texture* Right_Flipper_tex;
+	SDL_Texture* s_to_start;
 
 	uint bonus_fx;
 
@@ -72,7 +82,8 @@ public:
 	bool ray_on;
 
 	SDL_Rect board_rect = { 0,0,700,650 };
-	
+	SDL_Rect s_to_start_rect = { 0,0,110,42 };
+
 	uint score;
 	uint prev_score;
 	uint best_score;
@@ -120,6 +131,22 @@ private:
 	682, 669,
 	639, 673,
 	630, 650
+	};
+
+	int ball_block_points[10] = {
+	524, 246,
+	547, 189,
+	554, 215,
+	533, 246,
+	524, 246
+	};
+
+	int ball_block_sensor_points[10] = {
+	500, 203,
+	520, 175,
+	540, 174,
+	510, 230,
+	500, 203
 	};
 
 	int top_left_chain_ponits[34] = {

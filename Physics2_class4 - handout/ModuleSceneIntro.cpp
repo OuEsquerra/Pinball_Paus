@@ -41,6 +41,8 @@ bool ModuleSceneIntro::Start()
 	//TEXTURES--------------------------------------------------------------
 	ball_tex = App->textures->Load("pinball/ball.png");
 
+	s_to_start = App->textures->Load("pinball/s_to_start.png");
+
 	board_tex = App->textures->Load("pinball/clear_board.png");
 
 	cover_board_tex = App->textures->Load("pinball/board_covers.png");
@@ -49,7 +51,6 @@ bool ModuleSceneIntro::Start()
 
 	Right_Flipper_tex = App->textures->Load("pinball/Right_Flipper.png");
 
-	
 	//BOARD COLLIDERS (CHAINS)------------------------------------------------
 	cooler_bump = App->physics->CreateCircle(333 , 240 , 4, b2_staticBody);
 
@@ -89,14 +90,13 @@ bool ModuleSceneIntro::Start()
 	createFlipperJoints();
 	createPistonJoint();
 
-	//Starting Ball
-	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f , 1.0f));
+	//Ball Block
+	ball_block_sensor = App->physics->CreateChainSensor(0, 0, ball_block_sensor_points, 9);
 
-	circles.getLast()->data->listener = this;
+	ball_block = App->physics->CreateChain(0, 0, ball_block_points, 9, b2_staticBody);
 
 	return ret;
 }
-
 
 // Load assets
 bool ModuleSceneIntro::CleanUp()
@@ -109,10 +109,9 @@ bool ModuleSceneIntro::CleanUp()
 // Update: draw background
 update_status ModuleSceneIntro::Update()
 {
-	
 	App->renderer->Blit(board_tex, 0, 0, &board_rect);
 
-	App->fonts->BlitText(250, 310, 0, "42069");
+	App->fonts->BlitText(250, 310, 0, "69");
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
@@ -153,10 +152,8 @@ update_status ModuleSceneIntro::Update()
 		b2Vec2 force;
 		force.x = 0;
 		force.y = -150;
-
 		piston->body->ApplyForce(force, piston->body->GetWorldCenter(), true);
 	}
-
 
 	// All draw functions ------------------------------------------------------
 	p2List_item<PhysBody*>* c = circles.getFirst();
@@ -179,6 +176,56 @@ update_status ModuleSceneIntro::Update()
 
 	App->renderer->Blit(cover_board_tex, 0, 0, &board_rect);
 	
+	if (ballCount >= 4)
+	{
+		current_state = GAME_END;
+	}
+
+	switch (current_state)
+	{
+		case GAME_TOSTART:
+
+			score = 0;
+			crateBall(); //Starting Ball
+			current_state = GAME_WAITINGBALL;
+			ballCount = 1;
+
+			ball_block_sensor->body->SetActive(true);
+
+			ball_block->body->SetActive(false);
+
+			break;
+
+		case GAME_WAITINGBALL:
+			
+			ball_block_sensor->body->SetActive(true);
+
+			ball_block->body->SetActive(false);
+
+			break;
+
+		case GAME_RUNNING:
+
+			ball_block_sensor->body->SetActive(false);
+
+			ball_block->body->SetActive(true);
+
+			break;
+
+		case GAME_END:
+
+			if (App->input->GetKey(SDL_SCANCODE_S) == KEY_DOWN)
+			{
+				current_state = GAME_TOSTART;
+			}
+
+			App->renderer->Blit(s_to_start,275,331,&s_to_start_rect);
+
+			ballCount = 1;
+
+			break;
+	}
+
 	return UPDATE_CONTINUE;
 }
 
@@ -192,11 +239,22 @@ update_status ModuleSceneIntro::PostUpdate() {
 		c->data->GetPosition(x, y);
 		
 		if (y > board_rect.h) {
+
 			App->physics->GetWorld()->DestroyBody(c->data->body);
 			
 			p2List_item<PhysBody*>* tmp = c->next;
+
 			circles.del(c);
-			
+
+			ballCount++; //Sum ball to count
+
+			if (ballCount <= 3 )
+			{
+				crateBall();
+			}
+
+			current_state = GAME_WAITINGBALL;
+
 			c = tmp;
 		}
 		else c = c->next;
@@ -209,29 +267,18 @@ update_status ModuleSceneIntro::PostUpdate() {
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
 
-	if (circles.find(bodyA) != -1 && circles.find(bodyB) != -1) {//Ignore collisions between 2 balls
-		return;
+	if (circles.find(bodyA) != -1 && bodyB == ball_block_sensor) 
+	{ 
+		current_state = GAME_RUNNING;
 	}
 
-	
+	if (circles.find(bodyA) != -1 && (bodyB == top_jet || bodyB == left_jet || bodyB == right_jet) )
+	{
+		score += 10;
+	}
 
-	PhysBody* ball;
-	PhysBody* board;
-	
-	if (circles.find(bodyA) != -1) { //For clarity
-		ball = bodyA;
-		board = bodyB;
-	}
-	else if (circles.find(bodyB) != -1) {
-		ball = bodyB;
-		board = bodyA;
-	}
-	else {
-		return;
-	}
-	
-	LOG("Ball has hit something!");
-	
+
+
 	/*
 	if(board->body)
 
@@ -306,4 +353,12 @@ void ModuleSceneIntro::createPistonJoint()
 
 	b2RevoluteJoint* left_flipper_joint;
 	left_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&piston_jointDef);
+}
+
+void ModuleSceneIntro::crateBall()
+{
+	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f, 1.0f));
+
+	circles.getLast()->data->listener = this;
+
 }

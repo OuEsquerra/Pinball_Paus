@@ -48,7 +48,9 @@ public:
 
 	p2List<PhysBody*> triangles;
 
-	p2List<PhysBody*> jets;
+	PhysBody* top_jet;
+	PhysBody* left_jet;
+	PhysBody* right_jet;
 	
 	
 

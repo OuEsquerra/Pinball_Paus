@@ -4,7 +4,7 @@
 #include "Box2D/Box2D/Box2D.h"
 
 #define GRAVITY_X 0.0f
-#define GRAVITY_Y -7.0f
+#define GRAVITY_Y -10.0f
 
 #define PIXELS_PER_METER 50.0f // if touched change METER_PER_PIXEL too
 #define METER_PER_PIXEL 0.02f // this is 1 / PIXELS_PER_METER !
@@ -49,11 +49,11 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	PhysBody* CreateCircle(int x, int y, int radius, b2BodyType type);
-	PhysBody* CreateRectangle(int x, int y, int width, int height);
+	PhysBody* CreateCircle(int x, int y, int radius, b2BodyType type,float restitution = 0.0f,float density = 1.0f);
+	PhysBody* CreateRectangle(int x, int y, int width, int height, float restitution = 0.0f);
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
-	PhysBody* CreateChain(int x, int y, int* points, int size, b2BodyType type);
-	PhysBody* CreateFlipper(int x, int y, int* points,int size);
+	PhysBody* CreateChain(int x, int y, int* points, int size, b2BodyType type, float restitution = 0.5f);
+	PhysBody* CreateFlipper(int x, int y, int* points,int size, float density = 1.0f,float restitution = 0.0f);
 	b2World* GetWorld();
 
 	// b2ContactListener ---

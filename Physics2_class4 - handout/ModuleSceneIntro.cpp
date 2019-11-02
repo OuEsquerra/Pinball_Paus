@@ -84,7 +84,7 @@ bool ModuleSceneIntro::Start()
 
 	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17, 1.0f, 0.1f);
 
-	piston = App->physics->CreateRectangle(630, 630, 40, 30);
+	piston = App->physics->CreateRectangle(630, 630, 30, 30);
 
 	createFlipperJoints();
 	createPistonJoint();
@@ -148,14 +148,15 @@ update_status ModuleSceneIntro::Update()
 		right_flipper->body->ApplyTorque(-50, true);
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
+	if (App->input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
 	{
+		b2Vec2 force;
+		force.x = 0;
+		force.y = -150;
 
+		piston->body->ApplyForce(force, piston->body->GetWorldCenter(), true);
 	}
-	else if (App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_UP)
-	{
 
-	}
 
 	// All draw functions ------------------------------------------------------
 	p2List_item<PhysBody*>* c = circles.getFirst();
@@ -291,20 +292,18 @@ void ModuleSceneIntro::createPistonJoint()
 	piston_jointDef.bodyB = piston->body;
 	piston_jointDef.collideConnected = false;
 
-
 	b2Vec2 vertical;
-	vertical.x = 0;
-	vertical.y = 1;
+	vertical.x = 13;
+	vertical.y = 44;
 	piston_jointDef.localAxisA = vertical;
 
 	piston_jointDef.enableLimit = true;
-	piston_jointDef.lowerTranslation = 0;
-	piston_jointDef.upperTranslation = 5;
+	piston_jointDef.lowerTranslation = PIXEL_TO_METERS(-50);
+	piston_jointDef.upperTranslation = PIXEL_TO_METERS(50);
 	
 	piston_jointDef.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
-	piston_jointDef.localAnchorB.Set(PIXEL_TO_METERS(10), PIXEL_TO_METERS(15));
+	piston_jointDef.localAnchorB.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
 
 	b2RevoluteJoint* left_flipper_joint;
 	left_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&piston_jointDef);
-
 }

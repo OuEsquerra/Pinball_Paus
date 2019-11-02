@@ -26,6 +26,7 @@ public:
 	bool CleanUp();
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
 	void createFlipperJoints();
+	void createPistonJoint();
 
 public:
 	p2List<PhysBody*> circles;
@@ -37,6 +38,8 @@ public:
 	PhysBody* right_flipper;
 	PhysBody* left_flipper_joint;
 	PhysBody* right_flipper_joint;
+	PhysBody* piston;
+	PhysBody* piston_joint;
 	PhysBody* left_L;
 	PhysBody* right_L;
 	PhysBody* cooler;

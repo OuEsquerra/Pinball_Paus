@@ -31,6 +31,8 @@ bool ModuleSceneIntro::Start()
 	prev_score = 0;
 	best_score = 0;
 
+	current_state = GAME_TOSTART;
+
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
 	//AUDIO FX--------------------------------------------------------------
@@ -82,7 +84,10 @@ bool ModuleSceneIntro::Start()
 
 	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17, 1.0f, 0.2f);
 
+	piston = App->physics->CreateRectangle(630, 630, 30, 30);
+
 	createFlipperJoints();
+	createPistonJoint();
 
 	//Starting Ball
 	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f , 1.0f));
@@ -115,6 +120,7 @@ update_status ModuleSceneIntro::Update()
 		circles.getLast()->data->listener = this;
 	}
 
+	//LEFT FLIPPER
 	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)
 	{
 		left_flipper->body->ApplyTorque(-200, true);
@@ -128,12 +134,12 @@ update_status ModuleSceneIntro::Update()
 		left_flipper->body->ApplyTorque(50, true);
 	}
 	
-
-	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
+	//RIGHT FLIPPER
+	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
 	{
 		right_flipper->body->ApplyTorque(200, true);
 	}
-	else if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
+	else if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
 	{
 		right_flipper->body->ApplyTorque(100, true);
 	}
@@ -141,6 +147,16 @@ update_status ModuleSceneIntro::Update()
 	{
 		right_flipper->body->ApplyTorque(-50, true);
 	}
+
+	if (App->input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
+	{
+		b2Vec2 force;
+		force.x = 0;
+		force.y = -150;
+
+		piston->body->ApplyForce(force, piston->body->GetWorldCenter(), true);
+	}
+
 
 	// All draw functions ------------------------------------------------------
 	p2List_item<PhysBody*>* c = circles.getFirst();
@@ -264,4 +280,30 @@ void ModuleSceneIntro::createFlipperJoints()
 
 	b2RevoluteJoint* right_flipper_joint;
 	right_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&revoluteJointDef_right);
+}
+
+void ModuleSceneIntro::createPistonJoint()
+{
+	//Body to RevoluteJoint the FLipper (Left First)
+	piston_joint = App->physics->CreateCircle(655, 655, 2, b2_staticBody);
+
+	b2PrismaticJointDef piston_jointDef;
+	piston_jointDef.bodyA = piston_joint->body;
+	piston_jointDef.bodyB = piston->body;
+	piston_jointDef.collideConnected = false;
+
+	b2Vec2 vertical;
+	vertical.x = 13;
+	vertical.y = 44;
+	piston_jointDef.localAxisA = vertical;
+
+	piston_jointDef.enableLimit = true;
+	piston_jointDef.lowerTranslation = PIXEL_TO_METERS(-50);
+	piston_jointDef.upperTranslation = PIXEL_TO_METERS(50);
+	
+	piston_jointDef.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
+	piston_jointDef.localAnchorB.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
+
+	b2RevoluteJoint* left_flipper_joint;
+	left_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&piston_jointDef);
 }

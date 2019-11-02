@@ -83,6 +83,9 @@ update_status ModuleInput::PreUpdate()
 	if(keyboard[SDL_SCANCODE_ESCAPE] == KEY_UP)
 		return UPDATE_STOP;
 
+	if (keyboard[SDL_SCANCODE_C] == KEY_DOWN)
+		LOG("X:%d Y:%d", GetMouseX(), GetMouseY());
+
 	return UPDATE_CONTINUE;
 }
 

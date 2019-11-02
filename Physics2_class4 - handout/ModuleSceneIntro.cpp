@@ -59,9 +59,9 @@ bool ModuleSceneIntro::Start()
 
 	Clear_Boards.add(App->physics->CreateChain(0, 0, Clear_Board, 75,b2_staticBody , 0.0f));
 
-	triangles.add(App->physics->CreateChain(0, 0, left_triangles_points, 11, b2_staticBody , 1.5f  ));
+	triangles.add(App->physics->CreateChain(0, 0, left_triangles_points, 11, b2_staticBody , 1.25f  ));
 
-	triangles.add(App->physics->CreateChain(0, 0, right_triangles_points, 11, b2_staticBody , 1.5f  ));
+	triangles.add(App->physics->CreateChain(0, 0, right_triangles_points, 11, b2_staticBody , 1.25f  ));
 
 	left_L = App->physics->CreateChain(0, 0, left_L_point, 11, b2_staticBody);
 
@@ -78,9 +78,9 @@ bool ModuleSceneIntro::Start()
 	top_right_chain = App->physics->CreateChain(0, 0, top_right_chain_points, 37, b2_staticBody);
 
 	//FLIPPERS-------------------------------------------------------------------
-	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17,1.0f , 0.1f); //17 is the points of the flipper
+	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17,1.0f , 0.2f); //17 is the points of the flipper
 
-	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17, 1.0f, 0.1f);
+	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17, 1.0f, 0.2f);
 
 	createFlipperJoints();
 

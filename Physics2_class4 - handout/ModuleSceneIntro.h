@@ -6,6 +6,14 @@
 
 class PhysBody;
 
+enum GameState {
+	GAME_TOSTART,
+	GAME_RUNNING,
+	GAME_WAITINGBALL,
+	GAME_END
+};
+
+
 class ModuleSceneIntro : public Module
 {
 public:
@@ -55,6 +63,8 @@ public:
 	uint score;
 	uint prev_score;
 	uint best_score;
+
+	GameState current_state;
 
 private:
 

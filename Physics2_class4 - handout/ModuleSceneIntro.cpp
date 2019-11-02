@@ -28,11 +28,10 @@ bool ModuleSceneIntro::Start()
 	best_score = 0;
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
-	//AUDIO FX--------------------------------------------------------
+	//AUDIO FX--------------------------------------------------------------
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 
-	//TEXTURES------------------------------------------------------------
-
+	//TEXTURES--------------------------------------------------------------
 	ball_tex = App->textures->Load("pinball/ball.png");
 
 	board_tex = App->textures->Load("pinball/clear_board.png");
@@ -59,7 +58,7 @@ bool ModuleSceneIntro::Start()
 
 	cooler = App->physics->CreateChain(0, 0, cooler_point, 29, b2_staticBody);
 	
-	//FLIPPERS--------------------------------------------------------------------
+	//FLIPPERS-------------------------------------------------------------------
 	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17); //17 is the points of the flipper
 
 	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17);
@@ -210,7 +209,7 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		return;
 	}
 
-	LOG("Ball has hit something!");
+	
 
 	PhysBody* ball;
 	PhysBody* board;
@@ -223,11 +222,19 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		ball = bodyB;
 		board = bodyA;
 	}
+	else {
+		return;
+	}
+	
+	LOG("Ball has hit something!");
+	
+	/*
+	if(board->body)
 
 	if (board->audio_fx != NULL) {
 		App->audio->PlayFx(board->audio_fx);
 	}
 
 	score += board->score_value;
-
+	*/
 }

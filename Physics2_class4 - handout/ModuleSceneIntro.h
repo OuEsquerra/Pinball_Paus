@@ -82,11 +82,18 @@ public:
 	bool ray_on;
 
 	SDL_Rect board_rect = { 0,0,700,650 };
+
 	SDL_Rect s_to_start_rect = { 0,0,110,42 };
+
+
+	
+	//In Game
 
 	uint score;
 	uint prev_score;
 	uint best_score;
+	
+	uint n_ball;
 
 	GameState current_state;
 

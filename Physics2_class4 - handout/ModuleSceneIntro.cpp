@@ -1,4 +1,5 @@
 #include "Globals.h"
+#include <string>
 #include "Application.h"
 #include "ModuleRender.h"
 #include "ModuleSceneIntro.h"
@@ -41,9 +42,12 @@ bool ModuleSceneIntro::Start()
 	//TEXTURES--------------------------------------------------------------
 	ball_tex = App->textures->Load("pinball/ball.png");
 
+
 	s_to_start = App->textures->Load("pinball/s_to_start.png");
 
-	board_tex = App->textures->Load("pinball/clear_board.png");
+
+	board_tex = App->textures->Load("pinball/clear_board_dark.png");
+
 
 	cover_board_tex = App->textures->Load("pinball/board_covers.png");
 	
@@ -93,7 +97,11 @@ bool ModuleSceneIntro::Start()
 	//Ball Block
 	ball_block_sensor = App->physics->CreateChainSensor(0, 0, ball_block_sensor_points, 9);
 
+
 	ball_block = App->physics->CreateChain(0, 0, ball_block_points, 9, b2_staticBody);
+
+	//circles.getLast()->data->listener = this;
+	//n_ball = 1;
 
 	return ret;
 }
@@ -111,7 +119,10 @@ update_status ModuleSceneIntro::Update()
 {
 	App->renderer->Blit(board_tex, 0, 0, &board_rect);
 
-	App->fonts->BlitText(250, 310, 0, "69");
+
+
+	App->fonts->BlitText(280, 305, 0, std::to_string(score).c_str());
+
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
@@ -151,7 +162,12 @@ update_status ModuleSceneIntro::Update()
 	{
 		b2Vec2 force;
 		force.x = 0;
+
 		force.y = -150;
+
+		force.y = -140;
+
+
 		piston->body->ApplyForce(force, piston->body->GetWorldCenter(), true);
 	}
 
@@ -238,7 +254,10 @@ update_status ModuleSceneIntro::PostUpdate() {
 		int x, y;
 		c->data->GetPosition(x, y);
 		
-		if (y > board_rect.h) {
+
+		if (y > board_rect.h) { 
+
+			//DESTROY FALLEN BALLS
 
 			App->physics->GetWorld()->DestroyBody(c->data->body);
 			
@@ -256,6 +275,11 @@ update_status ModuleSceneIntro::PostUpdate() {
 			current_state = GAME_WAITINGBALL;
 
 			c = tmp;
+
+			//Place another ball at launcher
+			/*circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f, 1.0f));
+			circles.getLast()->data->listener = this;*/
+
 		}
 		else c = c->next;
 		
@@ -272,6 +296,7 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		current_state = GAME_RUNNING;
 	}
 
+
 	if (circles.find(bodyA) != -1 && (bodyB == top_jet || bodyB == left_jet || bodyB == right_jet) )
 	{
 		score += 10;
@@ -282,12 +307,40 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 	/*
 	if(board->body)
 
-	if (board->audio_fx != NULL) {
-		App->audio->PlayFx(board->audio_fx);
+	PhysBody* ball;
+	PhysBody* board;
+	
+	if (circles.find(bodyA) != -1) { //For clarity
+		ball = bodyA;
+		board = bodyB;
 	}
+	else if (circles.find(bodyB) != -1) {
+		ball = bodyB;
+		board = bodyA;
+	}
+	else {
+		return;
+	}
+	
+	score += 10;
+	LOG("Ball has hit something!");
+	
+	if (board->body->GetFixtureList()->IsSensor()) {
+		/*
+		if(board->body)
 
-	score += board->score_value;
-	*/
+		if (board->audio_fx != NULL) {
+			App->audio->PlayFx(board->audio_fx);
+		}
+
+		score += board->score_value;
+		}
+		*/
+
+
+	
+	
+
 }
 
 void ModuleSceneIntro::createFlipperJoints()
@@ -350,9 +403,13 @@ void ModuleSceneIntro::createPistonJoint()
 	
 	piston_jointDef.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
 	piston_jointDef.localAnchorB.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
+	piston_jointDef.referenceAngle = -5 * DEGTORAD;
+
 
 	b2RevoluteJoint* left_flipper_joint;
 	left_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&piston_jointDef);
+
+	App->physics->GetWorld()->CreateJoint(&piston_jointDef);
 }
 
 void ModuleSceneIntro::crateBall()
@@ -360,5 +417,6 @@ void ModuleSceneIntro::crateBall()
 	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f, 1.0f));
 
 	circles.getLast()->data->listener = this;
+
 
 }

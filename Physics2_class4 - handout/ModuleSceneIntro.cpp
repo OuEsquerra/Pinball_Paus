@@ -6,6 +6,7 @@
 #include "ModuleTextures.h"
 #include "ModuleAudio.h"
 #include "ModulePhysics.h"
+#include "ModuleFonts.h"
 
 ModuleSceneIntro::ModuleSceneIntro(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -15,13 +16,17 @@ ModuleSceneIntro::ModuleSceneIntro(Application* app, bool start_enabled) : Modul
 }
 
 ModuleSceneIntro::~ModuleSceneIntro()
-{}
+{
+}
 
 // Load assets
 bool ModuleSceneIntro::Start()
 {
 	LOG("Loading Intro assets");
 	bool ret = true;
+
+	App->fonts->Load("pinball/Score_Numbers.png", "0123456789", 1);
+
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
@@ -110,7 +115,10 @@ bool ModuleSceneIntro::CleanUp()
 // Update: draw background
 update_status ModuleSceneIntro::Update()
 {
+	
 	App->renderer->Blit(board_tex, 0, 0, &board_rect);
+
+	App->fonts->BlitText(250, 310, 0, "42069");
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
@@ -118,11 +126,11 @@ update_status ModuleSceneIntro::Update()
 		circles.getLast()->data->listener = this;
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)
 	{
 		left_flipper->body->ApplyTorque(-200, true);
 	}
-	else if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
+	else if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
 	{
 		left_flipper->body->ApplyTorque(-100, true); 
 	}
@@ -132,11 +140,11 @@ update_status ModuleSceneIntro::Update()
 	}
 	
 
-	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
+	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
 	{
 		right_flipper->body->ApplyTorque(200, true);
 	}
-	else if (App->input->GetKey(SDL_SCANCODE_D) == KEY_UP)
+	else if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
 	{
 		right_flipper->body->ApplyTorque(100, true);
 	}

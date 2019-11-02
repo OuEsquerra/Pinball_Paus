@@ -1,4 +1,5 @@
 #include "Globals.h"
+#include <string>
 #include "Application.h"
 #include "ModuleRender.h"
 #include "ModuleSceneIntro.h"
@@ -41,7 +42,7 @@ bool ModuleSceneIntro::Start()
 	//TEXTURES--------------------------------------------------------------
 	ball_tex = App->textures->Load("pinball/ball.png");
 
-	board_tex = App->textures->Load("pinball/clear_board.png");
+	board_tex = App->textures->Load("pinball/clear_board_dark.png");
 
 	cover_board_tex = App->textures->Load("pinball/board_covers.png");
 	
@@ -93,6 +94,7 @@ bool ModuleSceneIntro::Start()
 	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f , 1.0f));
 
 	circles.getLast()->data->listener = this;
+	n_ball = 1;
 
 	return ret;
 }
@@ -112,7 +114,7 @@ update_status ModuleSceneIntro::Update()
 	
 	App->renderer->Blit(board_tex, 0, 0, &board_rect);
 
-	App->fonts->BlitText(250, 310, 0, "42069");
+	App->fonts->BlitText(280, 305, 0, std::to_string(score).c_str());
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
@@ -152,7 +154,7 @@ update_status ModuleSceneIntro::Update()
 	{
 		b2Vec2 force;
 		force.x = 0;
-		force.y = -150;
+		force.y = -140;
 
 		piston->body->ApplyForce(force, piston->body->GetWorldCenter(), true);
 	}
@@ -191,13 +193,20 @@ update_status ModuleSceneIntro::PostUpdate() {
 		int x, y;
 		c->data->GetPosition(x, y);
 		
-		if (y > board_rect.h) {
+		if (y > board_rect.h) { 
+
+			//DESTROY FALLEN BALLS
 			App->physics->GetWorld()->DestroyBody(c->data->body);
 			
 			p2List_item<PhysBody*>* tmp = c->next;
 			circles.del(c);
 			
 			c = tmp;
+
+			//Place another ball at launcher
+			circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f, 1.0f));
+			circles.getLast()->data->listener = this;
+
 		}
 		else c = c->next;
 		
@@ -212,8 +221,6 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 	if (circles.find(bodyA) != -1 && circles.find(bodyB) != -1) {//Ignore collisions between 2 balls
 		return;
 	}
-
-	
 
 	PhysBody* ball;
 	PhysBody* board;
@@ -230,17 +237,23 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		return;
 	}
 	
+	score += 10;
 	LOG("Ball has hit something!");
 	
-	/*
-	if(board->body)
+	if (board->body->GetFixtureList()->IsSensor()) {
+		/*
+		if(board->body)
 
-	if (board->audio_fx != NULL) {
-		App->audio->PlayFx(board->audio_fx);
+		if (board->audio_fx != NULL) {
+			App->audio->PlayFx(board->audio_fx);
+		}
+
+		score += board->score_value;
+		*/
+
 	}
+	
 
-	score += board->score_value;
-	*/
 }
 
 void ModuleSceneIntro::createFlipperJoints()
@@ -303,7 +316,7 @@ void ModuleSceneIntro::createPistonJoint()
 	
 	piston_jointDef.localAnchorA.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
 	piston_jointDef.localAnchorB.Set(PIXEL_TO_METERS(0), PIXEL_TO_METERS(0));
+	piston_jointDef.referenceAngle = -5 * DEGTORAD;
 
-	b2RevoluteJoint* left_flipper_joint;
-	left_flipper_joint = (b2RevoluteJoint*)App->physics->GetWorld()->CreateJoint(&piston_jointDef);
+	App->physics->GetWorld()->CreateJoint(&piston_jointDef);
 }

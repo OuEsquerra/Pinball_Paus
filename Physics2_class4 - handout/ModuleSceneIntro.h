@@ -73,9 +73,12 @@ public:
 
 	SDL_Rect board_rect = { 0,0,700,650 };
 	
+	//In Game
 	uint score;
 	uint prev_score;
 	uint best_score;
+	
+	uint n_ball;
 
 	GameState current_state;
 

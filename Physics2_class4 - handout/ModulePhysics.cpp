@@ -154,9 +154,9 @@ PhysBody* ModulePhysics::CreateFlipper(int x, int y, int* points,int size)
 	pbody->height = pbody->width = 0;
 
 	return pbody;
-
-	return pbody;
 }
+
+
 
 PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int height)
 {

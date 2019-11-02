@@ -28,6 +28,13 @@ public:
 	int width, height;
 	b2Body* body;
 	Module* listener;
+
+	int			audio_fx;
+	uint		score_value;
+	
+	bool		retain_ball;
+	uint		retain_time;
+
 };
 
 // Module --------------------------------------

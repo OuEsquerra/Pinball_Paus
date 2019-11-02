@@ -14,6 +14,7 @@ public:
 
 	bool Start();
 	update_status Update();
+	update_status PostUpdate();
 	bool CleanUp();
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
 
@@ -40,6 +41,7 @@ public:
 
 	SDL_Texture* ball_tex;
 	SDL_Texture* board_tex;
+	SDL_Texture* cover_board_tex;
 	SDL_Texture* Left_Flipper_tex;
 	SDL_Texture* Right_Flipper_tex;
 
@@ -50,6 +52,10 @@ public:
 
 	SDL_Rect board_rect = { 0,0,700,650 };
 	
+	uint score;
+	uint prev_score;
+	uint best_score;
+
 private:
 
 	int Clear_Board[76] = {

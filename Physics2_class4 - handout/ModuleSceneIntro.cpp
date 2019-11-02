@@ -27,21 +27,28 @@ bool ModuleSceneIntro::Start()
 
 	App->fonts->Load("pinball/Score_Numbers.png", "0123456789", 1);
 
+	score = 0;
+	prev_score = 0;
+	best_score = 0;
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
-	ball_tex = App->textures->Load("pinball/ball.png"); 
-	
+	//AUDIO FX--------------------------------------------------------------
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 
+	//TEXTURES--------------------------------------------------------------
+	ball_tex = App->textures->Load("pinball/ball.png");
+
 	board_tex = App->textures->Load("pinball/clear_board.png");
+
+	cover_board_tex = App->textures->Load("pinball/board_covers.png");
 	
 	Left_Flipper_tex = App->textures->Load("pinball/Left_Flipper.png");
 
 	Right_Flipper_tex = App->textures->Load("pinball/Right_Flipper.png");
 
-	//sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
-
+	
+	//BOARD COLLIDERS (CHAINS)------------------------------------------------
 	cooler_bump = App->physics->CreateCircle(333 , 240 , 4, b2_staticBody);
 
 	Clear_Boards.add(App->physics->CreateChain(0, 0, Clear_Board, 75,b2_staticBody));
@@ -50,15 +57,16 @@ bool ModuleSceneIntro::Start()
 
 	triangles.add(App->physics->CreateChain(0, 0, right_triangles_points, 11, b2_staticBody));
 
-	left_flipper=App->physics->CreateFlipper(211,560,Left_Flipper, 17 ); //19 is the points of the flipper
-
-	right_flipper=App->physics->CreateFlipper(441, 560, Right_Flipper, 17);
-
 	left_L = App->physics->CreateChain(0, 0, left_L_point, 11, b2_staticBody);
 
 	right_L = App->physics->CreateChain(0, 0, right_L_point, 11, b2_staticBody);
 
 	cooler = App->physics->CreateChain(0, 0, cooler_point, 29, b2_staticBody);
+	
+	//FLIPPERS-------------------------------------------------------------------
+	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17); //17 is the points of the flipper
+
+	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17);
 
 	//Body to RevoluteJoint the FLipper (Left First)
 	left_flipper_joint = App->physics->CreateCircle( 215 , 582 , 2 , b2_staticBody);
@@ -103,6 +111,7 @@ bool ModuleSceneIntro::Start()
 
 	return ret;
 }
+
 
 // Load assets
 bool ModuleSceneIntro::CleanUp()
@@ -171,26 +180,69 @@ update_status ModuleSceneIntro::Update()
 	
 	right_flipper->GetPosition(x, y);
 	App->renderer->Blit(Right_Flipper_tex, x - 95, y, NULL, 1.0f, right_flipper->GetRotation(),95,0);
+
+	App->renderer->Blit(cover_board_tex, 0, 0, &board_rect);
 	
+	return UPDATE_CONTINUE;
+}
+
+update_status ModuleSceneIntro::PostUpdate() {
+
+	p2List_item<PhysBody*>* c = circles.getFirst();
+
+
+	while (c != nullptr) {
+		int x, y;
+		c->data->GetPosition(x, y);
+		
+		if (y > board_rect.h) {
+			App->physics->GetWorld()->DestroyBody(c->data->body);
+			
+			p2List_item<PhysBody*>* tmp = c->next;
+			circles.del(c);
+			
+			c = tmp;
+		}
+		else c = c->next;
+		
+	}
+
 	return UPDATE_CONTINUE;
 }
 
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
-	//int x, y;
 
-	//App->audio->PlayFx(bonus_fx);
-
-	/*
-	if(bodyA)
-	{
-		bodyA->GetPosition(x, y);
-		App->renderer->DrawCircle(x, y, 50, 100, 100, 100);
+	if (circles.find(bodyA) != -1 && circles.find(bodyB) != -1) {//Ignore collisions between 2 balls
+		return;
 	}
 
-	if(bodyB)
-	{
-		bodyB->GetPosition(x, y);
-		App->renderer->DrawCircle(x, y, 50, 100, 100, 100);
-	}*/
+	
+
+	PhysBody* ball;
+	PhysBody* board;
+	
+	if (circles.find(bodyA) != -1) { //For clarity
+		ball = bodyA;
+		board = bodyB;
+	}
+	else if (circles.find(bodyB) != -1) {
+		ball = bodyB;
+		board = bodyA;
+	}
+	else {
+		return;
+	}
+	
+	LOG("Ball has hit something!");
+	
+	/*
+	if(board->body)
+
+	if (board->audio_fx != NULL) {
+		App->audio->PlayFx(board->audio_fx);
+	}
+
+	score += board->score_value;
+	*/
 }

@@ -60,6 +60,8 @@ public:
 	PhysBody* ball_block_sensor;
 	PhysBody* ball_block;
 
+	PhysBody* powersupply_sensor;
+
 	bool ball_sensor_active = false;
 	bool ball_block_active = false;
 
@@ -75,6 +77,9 @@ public:
 	SDL_Texture* Left_Flipper_tex;
 	SDL_Texture* Right_Flipper_tex;
 	SDL_Texture* s_to_start;
+	SDL_Texture* green_light;
+	SDL_Texture* balls_text;
+	SDL_Texture* ready_text;
 
 	uint bonus_fx;
 	uint flipper_sound;
@@ -297,4 +302,18 @@ private:
 		-7, 0
 	};
 
+	int blue_resitence[10] = {
+	141, 220,
+	149, 228,
+	169, 224,
+	172, 211,
+	162, 194
+	};
+
+	int powersupply[8] = {
+	454, 53,
+	456, 68,
+	478, 68,
+	475, 54
+	};
 };

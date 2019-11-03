@@ -32,7 +32,7 @@ public:
 	int			audio_fx;
 	uint		score_value;
 	
-	bool		retain_ball;
+	bool		retain_ball = false;
 	uint		retain_time;
 
 };
@@ -59,12 +59,14 @@ public:
 
 	// b2ContactListener ---
 	void BeginContact(b2Contact* contact);
+public:
 
+	b2Body* foundBody;
+	b2MouseJoint* mouse_joint;
 private:
 
 	bool debug;
 	b2World* world;
-	b2MouseJoint* mouse_joint;
 	b2Body* ground;
-	b2Body* foundBody;
+
 };

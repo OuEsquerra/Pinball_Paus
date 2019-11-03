@@ -91,6 +91,9 @@ public:
 	uint jet_sound;
 	uint new_ball;
 	uint throw_ball;
+	uint ball_saved;
+	uint red_target_sound;
+	uint generic_points;
 
 	p2Point<int> ray;
 	bool ray_on;

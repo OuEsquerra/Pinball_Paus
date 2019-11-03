@@ -49,6 +49,12 @@ bool ModuleSceneIntro::Start()
 
 	throw_ball = App->audio->LoadFx("pinball/audio/throw_ball.wav");
 
+	ball_saved = App->audio->LoadFx("pinball/audio/ball_saved.wav");
+
+	red_target_sound = App->audio->LoadFx("pinball/audio/red_target.wav");
+
+	generic_points = App->audio->LoadFx("pinball/audio/generic_points.wav");
+
 	//TEXTURES--------------------------------------------------------------
 	ball_tex = App->textures->Load("pinball/ball.png");
 
@@ -231,8 +237,6 @@ update_status ModuleSceneIntro::Update()
 	}
 
 	
-	
-	
 	if (ballCount > 4)
 	{
 		current_state = GAME_END;
@@ -367,6 +371,10 @@ update_status ModuleSceneIntro::PostUpdate() {
 			{
 				ballCount++; //Sum ball to count
 			}
+			if (save_ball)
+			{
+				App->audio->PlayFx(ball_saved, 0);
+			}
 			if (ballCount <= 4)
 			{
 				crateBall();
@@ -410,20 +418,22 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		App->audio->PlayFx(jet_sound, 0);
 	}
 
-
 	if (bodyB == cooler_sensor)
 	{
 		score += 100;
+		App->audio->PlayFx(generic_points, 0);
 	}
 
 	if (red_targets.find(bodyB) != -1)
 	{
 		score += 50;
+		App->audio->PlayFx(red_target_sound, 0);
 	}
 
 	if (red_flags.find(bodyB) != -1)
 	{
 		score += 30;
+		App->audio->PlayFx(generic_points, 0);
 	}
 
 	//if (board->body->GetFixtureList()->IsSensor() && board->retain_ball == true) {
@@ -442,8 +452,6 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 	}
 
 }
-
-
 
 void ModuleSceneIntro::createFlipperJoints()
 {

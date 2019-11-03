@@ -32,13 +32,11 @@ bool ModuleSceneIntro::Start()
 
 	score = 0;
 	prev_score = 0;
-	best_score = 0;
+	high_score = 0;
 
 	current_state = GAME_TOSTART;
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
-
-	
 
 	//AUDIO FX--------------------------------------------------------------
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
@@ -56,13 +54,11 @@ bool ModuleSceneIntro::Start()
 
 	s_to_start = App->textures->Load("pinball/s_to_start.png");
 
-
 	balls_text = App->textures->Load("pinball/ball_text.png");
 
 	green_light = App->textures->Load("pinball/green_light.png");
 
 	ready_text = App->textures->Load("pinball/ready_text.png");
-
 
 	board_tex = App->textures->Load("pinball/clear_board_dark.png");
 
@@ -71,6 +67,10 @@ bool ModuleSceneIntro::Start()
 	Left_Flipper_tex = App->textures->Load("pinball/Left_Flipper.png");
 
 	Right_Flipper_tex = App->textures->Load("pinball/Right_Flipper.png");
+
+	high_score_tex= App->textures->Load("pinball/high_score.png");
+
+	prev_score_tex = App->textures->Load("pinball/prev_score.png");
 
 	//BOARD COLLIDERS (CHAINS)------------------------------------------------
 	cooler_bump = App->physics->CreateCircle(333 , 240 , 4, b2_staticBody);
@@ -101,7 +101,6 @@ bool ModuleSceneIntro::Start()
 
 	top_right_chain = App->physics->CreateChain(0, 0, top_right_chain_points, 37, b2_staticBody);
 
-
 	//MOVING PARTS-------------------------------------------------------------------
 	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17,1.0f , 0.2f); 
 
@@ -109,6 +108,7 @@ bool ModuleSceneIntro::Start()
 
 	piston = App->physics->CreateRectangle(630, 630, 30, 30);
 
+	
 	createFlipperJoints();
 	createPistonJoint();
 
@@ -116,9 +116,21 @@ bool ModuleSceneIntro::Start()
 	//Ball Block
 	ball_block_sensor = App->physics->CreateChainSensor(0, 0, ball_block_sensor_points, 9);
 
-
 	ball_block = App->physics->CreateChain(0, 0, ball_block_points, 9, b2_staticBody);
 	
+
+	cooler_sensor = App->physics->CreateRectangleSensor(332,200,50,30);
+
+	red_targets.add(App->physics->CreateRectangleSensor(153, 343, 20, 20));
+
+	red_targets.add(App->physics->CreateRectangleSensor(504, 343, 20, 20));
+
+	red_targets.add(App->physics->CreateRectangleSensor(233, 113, 20, 20));
+
+	red_flags.add(App->physics->CreateRectangleSensor(190, 120, 20, 20));
+
+	red_flags.add(App->physics->CreateRectangleSensor(500, 230, 20, 20));
+
 	//Power Supply Special Sensor
 	powersupply_sensor = App->physics->CreateChainSensor(0, 0, powersupply, 8);
 	powersupply_sensor->retain_ball = true;
@@ -173,7 +185,6 @@ update_status ModuleSceneIntro::Update()
 		}
 	}
 
-
 	App->renderer->Blit(board_tex, 0, 0, &board_rect);
 
 	App->fonts->BlitText(280, 305, 0, std::to_string(score).c_str());
@@ -220,8 +231,7 @@ update_status ModuleSceneIntro::Update()
 	}
 	if (App->input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
 	{
-		
-
+	
 		b2Vec2 force;
 		force.x = 0;
 
@@ -230,26 +240,8 @@ update_status ModuleSceneIntro::Update()
 		piston->body->ApplyForce(force, piston->body->GetWorldCenter(), true);
 	}
 
-	// All draw functions ------------------------------------------------------
-	p2List_item<PhysBody*>* c = circles.getFirst();
-
-	while (c != NULL) {
-		int x, y;
-		c->data->GetPosition(x, y);
-		App->renderer->Blit(ball_tex, x, y, NULL, 1.0f);
-
-		c = c->next;
-	}
-
-	int x, y = 0;
 	
-	left_flipper->GetPosition(x, y);
-	App->renderer->Blit(Left_Flipper_tex, x, y, NULL, 1.0f, left_flipper->GetRotation() , 0 ,0);
 	
-	right_flipper->GetPosition(x, y);
-	App->renderer->Blit(Right_Flipper_tex, x - 95, y, NULL, 1.0f, right_flipper->GetRotation(),95,0);
-
-	App->renderer->Blit(cover_board_tex, 0, 0, &board_rect);
 	
 	if (ballCount > 4)
 	{
@@ -277,15 +269,29 @@ update_status ModuleSceneIntro::Update()
 
 			ball_block->body->SetActive(false);
 
+			save_ball_timer = 0;
+
+			save_ball = true;
+
 			break;
 
 		case GAME_RUNNING:
+
+			save_ball_timer++;
+
+			if (save_ball_timer / 60 >= 8)
+			{
+				save_ball = false;
+			}
 
 			ball_block_sensor->body->SetActive(false);
 
 			ball_block->body->SetActive(true);
 
-			App->renderer->Blit(green_light, 30, 27);
+			if (save_ball)
+			{
+				App->renderer->Blit(green_light, 309, 544 );
+			}
 
 			break;
 
@@ -298,10 +304,45 @@ update_status ModuleSceneIntro::Update()
 
 			App->renderer->Blit(s_to_start,275,331,&s_to_start_rect);
 
+			if (score > high_score)
+			{
+				high_score = score;
+			}
+
 			ballCount = 1;
 
 			break;
 	}
+
+	//Draw Functions
+	p2List_item<PhysBody*>* c = circles.getFirst();
+
+	while (c != NULL) {
+		int x, y;
+		c->data->GetPosition(x, y);
+		App->renderer->Blit(ball_tex, x, y, NULL, 1.0f);
+
+		c = c->next;
+	}
+
+	int x, y = 0;
+
+	left_flipper->GetPosition(x, y);
+	App->renderer->Blit(Left_Flipper_tex, x, y, NULL, 1.0f, left_flipper->GetRotation(), 0, 0);
+
+	right_flipper->GetPosition(x, y);
+	App->renderer->Blit(Right_Flipper_tex, x - 95, y, NULL, 1.0f, right_flipper->GetRotation(), 95, 0);
+
+	App->renderer->Blit(cover_board_tex, 0, 0, &board_rect);
+
+	//Render High Score
+	App->renderer->Blit(high_score_tex, 0, 0, &high_score_rect);
+	App->fonts->BlitText(0,25, 0, std::to_string(high_score).c_str());
+
+	//Render Prev Score
+	App->renderer->Blit(prev_score_tex, 0, 50, &prev_score_rect);
+	App->fonts->BlitText(0, 75, 0, std::to_string(prev_score).c_str());
+
 
 	return UPDATE_CONTINUE;
 }
@@ -312,11 +353,11 @@ update_status ModuleSceneIntro::PostUpdate() {
 
 
 	while (c != nullptr) {
+
 		int x, y;
 		c->data->GetPosition(x, y);
-		
 
-		if (y > board_rect.h) { 
+		if (y > board_rect.h) {
 
 			//Destroy Ball & Mouse Joint (If it exists)
 			if (App->physics->foundBody != nullptr)
@@ -325,15 +366,18 @@ update_status ModuleSceneIntro::PostUpdate() {
 				App->physics->mouse_joint = nullptr;
 				App->physics->foundBody = nullptr;
 			};
+
 			App->physics->GetWorld()->DestroyBody(c->data->body);
-			
+
 			p2List_item<PhysBody*>* tmp = c->next;
 
 			circles.del(c);
 
-			ballCount++; //Sum ball to count
-
-			if (ballCount <= 3 )
+			if (!save_ball && !App->physics->debug)
+			{
+				ballCount++; //Sum ball to count
+			}
+			if (ballCount <= 4)
 			{
 				crateBall();
 			}
@@ -342,22 +386,19 @@ update_status ModuleSceneIntro::PostUpdate() {
 
 			c = tmp;
 
-			//Place another ball at launcher
-			/*circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f, 1.0f));
-			circles.getLast()->data->listener = this;*/
-
 		}
-		else c = c->next;
-		
-	}
 
+		else c = c->next;
+	}
 	return UPDATE_CONTINUE;
 }
 
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
 
+
 	//Ignore collisions that involve no balls. It shouldn't happen, but it's just in case.
+
 	if (circles.find(bodyA) != -1 && circles.find(bodyB) != -1) return;
 
 
@@ -379,9 +420,30 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		App->audio->PlayFx(jet_sound, 0);
 	}
 
+
+	if (bodyB == cooler_sensor)
+	{
+		score += 100;
+	}
+
+	if (red_targets.find(bodyB) != -1)
+	{
+		score += 50;
+	}
+
+	if (red_flags.find(bodyB) != -1)
+	{
+		score += 30;
+	}
+
+	//if (board->body->GetFixtureList()->IsSensor() && board->retain_ball == true) {
+	//	ball->body->SetLinearVelocity(b2Vec2(0, 0));
+	//	//ball->body->
+	//}
+	//if(board->body)
+
 	if (bodyB->retain_ball == true) {
 		bodyA->body->SetLinearVelocity(b2Vec2(0, 0));
-
 
 		eject_timer_running = true;
 

@@ -1,4 +1,4 @@
-# Pinball_Paus
+# Short Circuit Tribute
 Quick pinball game for Physics 2 subject using the Box2D library.
 
 The project's [Github](https://github.com/OuEsquerra/Pinball_Paus).

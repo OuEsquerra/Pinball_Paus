@@ -22,7 +22,7 @@ enum update_status
 
 // Configuration -----------
 #define SCREEN_WIDTH 700
-#define SCREEN_HEIGHT 750 //Game is 650
+#define SCREEN_HEIGHT 650 //Game is 650
 #define SCREEN_SIZE 1
 #define WIN_FULLSCREEN false
 #define WIN_RESIZABLE false
@@ -31,4 +31,4 @@ enum update_status
 #define VSYNC true
 #define MAX_FONT_CHARS 20
 #define MAX_FONTS 1
-#define TITLE "2D Physics Playground"
+#define TITLE "Short Circuit - Paus Fiol & Pedra"

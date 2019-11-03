@@ -31,6 +31,7 @@ public:
 
 public:
 
+	//Bodies
 	p2List<PhysBody*> circles;
 	p2List<PhysBody*> boxes;
 	p2List<PhysBody*> Clear_Boards;
@@ -67,14 +68,8 @@ public:
 	PhysBody* powersupply_sensor;
 	PhysBody* blueres_sensor;
 
-	bool save_ball = true;
-	int save_ball_timer = 0;
 
-	int ballCount = 1;
-
-	PhysBody* sensor;
-	bool sensed;
-
+	//Textures
 	SDL_Texture* ball_tex;
 	SDL_Texture* board_tex;
 	SDL_Texture* cover_board_tex;
@@ -84,9 +79,11 @@ public:
 	SDL_Texture* green_light;
 	SDL_Texture* balls_text;
 	SDL_Texture* ready_text;
+	SDL_Texture* jets_text;
 	SDL_Texture* high_score_tex;
 	SDL_Texture* prev_score_tex;
 
+	//Audio
 	uint bonus_fx;
 	uint flipper_sound;
 	uint jet_sound;
@@ -104,17 +101,28 @@ public:
 	SDL_Rect high_score_rect = { 0,0,136,21 };
 	SDL_Rect prev_score_rect = { 0,0,136,21 };
 
-	//In Game
-
+	//In Game handling
 	uint score;
 	uint prev_score;
 	uint high_score;
 	
+	bool save_ball = true;
+	int save_ball_timer = 0;
+
+	int ballCount = 1;
+
+	PhysBody* sensor;
+	bool sensed;
 
 	GameState current_state;
 
+	uint jet_count = 0;
+	uint last_jet_hit;
+	bool jet_combo = false;
+
 	uint eject_timer = 0;
 	bool eject_timer_running = false;
+	
 	PhysBody* retained_ball;
 	PhysBody* retainer;
 

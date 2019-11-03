@@ -66,6 +66,8 @@ bool ModuleSceneIntro::Start()
 
 	ready_text = App->textures->Load("pinball/ready_text.png");
 
+	jets_text = App->textures->Load("pinball/jets_text.png");
+
 	board_tex = App->textures->Load("pinball/clear_board_dark.png");
 
 	cover_board_tex = App->textures->Load("pinball/board_covers.png");
@@ -175,7 +177,7 @@ bool ModuleSceneIntro::CleanUp()
 // Update: draw background
 update_status ModuleSceneIntro::Update()
 {
-
+	//Timer for ejectors
 	if (eject_timer_running == true) {
 		eject_timer++;
 
@@ -191,11 +193,26 @@ update_status ModuleSceneIntro::Update()
 		}
 	}
 
+	//Jet Combo timer
+	if (jet_combo) {
+		last_jet_hit++;
+
+		if (last_jet_hit >= 120) {
+			jet_combo = false;
+			last_jet_hit = 0;
+			score += jet_count * (jet_count/2) * 10;
+			jet_count = 0;
+		}
+	}
+
+
+
 	App->renderer->Blit(board_tex, 0, 0, &board_rect);
 
 	App->fonts->BlitText(280, 305, 0, std::to_string(score).c_str());
 
-	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
+	//Create balls on demand, Debug feature
+	if (App->input->GetKey(SDL_SCANCODE_F2) == KEY_DOWN && App->physics->debug == true)
 	{
 		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 12, b2_dynamicBody, 0.0f, 1.0f));
 		circles.getLast()->data->listener = this;
@@ -279,9 +296,16 @@ update_status ModuleSceneIntro::Update()
 
 			save_ball = true;
 
+			jet_combo = false;
+			jet_count = 0;
+
 			break;
 
 		case GAME_RUNNING:
+
+
+			App->renderer->Blit(balls_text, 270, 350);
+			App->fonts->BlitText(350, 350, 0, std::to_string(ballCount).c_str());
 
 			save_ball_timer++;
 
@@ -309,7 +333,8 @@ update_status ModuleSceneIntro::Update()
 			}
 
 			App->renderer->Blit(s_to_start,275,331,&s_to_start_rect);
-
+			
+			prev_score = score;
 			if (score > high_score)
 			{
 				high_score = score;
@@ -321,8 +346,14 @@ update_status ModuleSceneIntro::Update()
 	}
 
 	//Draw Functions
-	p2List_item<PhysBody*>* c = circles.getFirst();
 
+	if (jet_combo) {
+		App->renderer->DrawQuad({265, 330, 135, 45}, 0, 0, 0, 255);
+		App->renderer->Blit(jets_text, 260, 350);
+		App->fonts->BlitText(365, 350, 0, std::to_string(jet_count).c_str());
+	}
+
+	p2List_item<PhysBody*>* c = circles.getFirst();
 	while (c != NULL) {
 		int x, y;
 		c->data->GetPosition(x, y);
@@ -339,6 +370,7 @@ update_status ModuleSceneIntro::Update()
 	right_flipper->GetPosition(x, y);
 	App->renderer->Blit(Right_Flipper_tex, x - 95, y, NULL, 1.0f, right_flipper->GetRotation(), 95, 0);
 
+	
 	App->renderer->Blit(cover_board_tex, 0, 0, &board_rect);
 
 	//Render High Score
@@ -348,6 +380,8 @@ update_status ModuleSceneIntro::Update()
 	//Render Prev Score
 	App->renderer->Blit(prev_score_tex, 0, 50, &prev_score_rect);
 	App->fonts->BlitText(0, 75, 0, std::to_string(prev_score).c_str());
+
+
 
 
 	return UPDATE_CONTINUE;
@@ -426,8 +460,10 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 
 	if ((bodyB == top_jet || bodyB == left_jet || bodyB == right_jet) )
 	{
-		score += 10;
 		App->audio->PlayFx(jet_sound, 0);
+		jet_count++;
+		last_jet_hit = 0;
+		jet_combo = true;
 	}
 
 	if (bodyB == cooler_sensor)

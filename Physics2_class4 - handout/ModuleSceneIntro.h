@@ -61,6 +61,7 @@ public:
 	PhysBody* ball_block;
 
 	PhysBody* powersupply_sensor;
+	PhysBody* blueres_sensor;
 
 	bool ball_sensor_active = false;
 	bool ball_block_active = false;
@@ -197,8 +198,8 @@ private:
 	416, 50,
 	416, 100,
 	460, 161,
-	429, 53,
-	461, 53,
+	450, 73,
+	480, 73,
 	498, 167,
 	498, 176,
 	495, 185,
@@ -308,18 +309,18 @@ private:
 		-7, 0
 	};
 
-	int blue_resitence[10] = {
-	141, 220,
-	149, 228,
-	169, 224,
-	172, 211,
-	162, 194
+	int blue_resitence[6] = {
+		146, 220,
+		167, 206,
+		155, 183
 	};
 
 	int powersupply[8] = {
-	434, 53,
-	436, 68,
-	458, 68,
-	455, 54
+		449, 73,
+		451, 88,
+		473, 88,
+		470, 74
 	};
+
+
 };

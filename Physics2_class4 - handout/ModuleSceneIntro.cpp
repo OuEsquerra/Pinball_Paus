@@ -119,7 +119,7 @@ bool ModuleSceneIntro::Start()
 
 	ball_block = App->physics->CreateChain(0, 0, ball_block_points, 9, b2_staticBody);
 	
-	
+	//Power Supply Special Sensor
 	powersupply_sensor = App->physics->CreateChainSensor(0, 0, powersupply, 8);
 	powersupply_sensor->retain_ball = true;
 	
@@ -129,8 +129,14 @@ bool ModuleSceneIntro::Start()
 
 	powersupply_sensor->throw_direction = throw_dir;
 	
-	
+	//Blue Resistance Special Sensor
+	blueres_sensor = App->physics->CreateChainSensor(0, 0, blue_resitence, 6);
+	blueres_sensor->retain_ball = true;
 
+	throw_dir.x = 40;
+	throw_dir.y = 120;
+
+	blueres_sensor->throw_direction = throw_dir;
 
 	//circles.getLast()->data->listener = this;
 	//n_ball = 1;
@@ -162,6 +168,7 @@ update_status ModuleSceneIntro::Update()
 			eject_timer_running = false;
 
 
+			score += 300;
 			retained_ball->body->ApplyForceToCenter( retainer->throw_direction, true);
 		}
 	}

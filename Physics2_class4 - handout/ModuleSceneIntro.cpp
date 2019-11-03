@@ -36,18 +36,25 @@ bool ModuleSceneIntro::Start()
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
+	
+
 	//AUDIO FX--------------------------------------------------------------
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
+
+	flipper_sound = App->audio->LoadFx("pinball/audio/flipper_sound.wav");
+
+	jet_sound = App->audio->LoadFx("pinball/audio/jets.wav");
+
+	new_ball= App->audio->LoadFx("pinball/audio/new_ball.wav");
+
+	throw_ball = App->audio->LoadFx("pinball/audio/throw_ball.wav");
 
 	//TEXTURES--------------------------------------------------------------
 	ball_tex = App->textures->Load("pinball/ball.png");
 
-
 	s_to_start = App->textures->Load("pinball/s_to_start.png");
 
-
 	board_tex = App->textures->Load("pinball/clear_board_dark.png");
-
 
 	cover_board_tex = App->textures->Load("pinball/board_covers.png");
 	
@@ -85,7 +92,7 @@ bool ModuleSceneIntro::Start()
 	top_right_chain = App->physics->CreateChain(0, 0, top_right_chain_points, 37, b2_staticBody);
 
 	//FLIPPERS-------------------------------------------------------------------
-	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17,1.0f , 0.2f); //17 is the points of the flipper
+	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17,1.0f , 0.2f); 
 
 	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17, 1.0f, 0.2f);
 
@@ -103,6 +110,8 @@ bool ModuleSceneIntro::Start()
 	//circles.getLast()->data->listener = this;
 	//n_ball = 1;
 
+	App->audio->PlayMusic("pinball/audio/music.ogg");
+
 	return ret;
 }
 
@@ -117,12 +126,11 @@ bool ModuleSceneIntro::CleanUp()
 // Update: draw background
 update_status ModuleSceneIntro::Update()
 {
+	
+
 	App->renderer->Blit(board_tex, 0, 0, &board_rect);
 
-
-
 	App->fonts->BlitText(280, 305, 0, std::to_string(score).c_str());
-
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
@@ -133,7 +141,8 @@ update_status ModuleSceneIntro::Update()
 	//LEFT FLIPPER
 	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)
 	{
-		left_flipper->body->ApplyTorque(-200, true);
+		App->audio->PlayFx(flipper_sound, 0);
+		left_flipper->body->ApplyTorque(-300, true);
 	}
 	else if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
 	{
@@ -147,7 +156,8 @@ update_status ModuleSceneIntro::Update()
 	//RIGHT FLIPPER
 	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
 	{
-		right_flipper->body->ApplyTorque(200, true);
+		App->audio->PlayFx(flipper_sound, 0);
+		right_flipper->body->ApplyTorque(300, true);
 	}
 	else if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
 	{
@@ -158,15 +168,20 @@ update_status ModuleSceneIntro::Update()
 		right_flipper->body->ApplyTorque(-50, true);
 	}
 
+	if (App->input->GetKey(SDL_SCANCODE_UP) == KEY_DOWN)
+	{
+		App->audio->PlayFx(throw_ball, 0);
+	}
 	if (App->input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
 	{
+		
+
 		b2Vec2 force;
 		force.x = 0;
 
 		force.y = -150;
 
 		force.y = -140;
-
 
 		piston->body->ApplyForce(force, piston->body->GetWorldCenter(), true);
 	}
@@ -296,10 +311,15 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		current_state = GAME_RUNNING;
 	}
 
+	if (circles.find(bodyA) != -1 && triangles.find(bodyB) != -1)
+	{
+		App->audio->PlayFx(jet_sound, 0);
+	}
 
 	if (circles.find(bodyA) != -1 && (bodyB == top_jet || bodyB == left_jet || bodyB == right_jet) )
 	{
 		score += 10;
+		App->audio->PlayFx(jet_sound, 0);
 	}
 
 
@@ -414,9 +434,9 @@ void ModuleSceneIntro::createPistonJoint()
 
 void ModuleSceneIntro::crateBall()
 {
+	App->audio->PlayFx(new_ball, 0);
+
 	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f, 1.0f));
 
 	circles.getLast()->data->listener = this;
-
-
 }

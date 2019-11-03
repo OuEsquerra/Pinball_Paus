@@ -1,6 +1,6 @@
 #include "Globals.h"
 #include <string>
-#include "SDL/include/SDL_timer.h"
+
 #include "Application.h"
 #include "ModuleRender.h"
 #include "ModuleSceneIntro.h"
@@ -111,7 +111,12 @@ bool ModuleSceneIntro::Start()
 	
 	powersupply_sensor = App->physics->CreateChainSensor(0, 0, powersupply, 8);
 	powersupply_sensor->retain_ball = true;
-	powersupply_sensor->retain_time = 1000; 
+	
+	b2Vec2 throw_dir;
+	throw_dir.x = 0;
+	throw_dir.y = 200;
+
+	powersupply_sensor->throw_direction = throw_dir;
 	
 	
 
@@ -133,6 +138,21 @@ bool ModuleSceneIntro::CleanUp()
 // Update: draw background
 update_status ModuleSceneIntro::Update()
 {
+	if (eject_timer_running == true) {
+		eject_timer++;
+
+		retained_ball->body->SetLinearVelocity(b2Vec2(0, 0));
+		
+		if (eject_timer >= 60) {
+			eject_timer = 0;
+			eject_timer_running = false;
+
+
+			retained_ball->body->ApplyForceToCenter( retainer->throw_direction, true);
+		}
+	}
+
+
 	App->renderer->Blit(board_tex, 0, 0, &board_rect);
 
 
@@ -312,79 +332,33 @@ update_status ModuleSceneIntro::PostUpdate() {
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
 
-	//Ignore collisions that involve no balls. It shouldn't happen, but its just in case.
+	//Ignore collisions that involve no balls. It shouldn't happen, but it's just in case.
 	if (circles.find(bodyA) != -1 && circles.find(bodyB) != -1) return;
 
-	PhysBody* ball;
-	PhysBody* board;
 
-	if (circles.find(bodyA) != -1) { //For clarity
-		ball = bodyB;
-		board = bodyA;
-	}
-	else if (circles.find(bodyB) != -1) {
-		ball = bodyA;
-		board = bodyB;
-	}
-	else {
-		return;
-	}
 
 	if (bodyB == ball_block_sensor) 
 	{ 
 		current_state = GAME_RUNNING;
 	}
-
-
-	if ((bodyB == top_jet || bodyB == left_jet || bodyB == right_jet) )
+	else if ((bodyB == top_jet || bodyB == left_jet || bodyB == right_jet) )
 	{
 		score += 10;
 	}
 
-	if (board->body->GetFixtureList()->IsSensor() && board->retain_ball == true) {
-		ball->body->SetLinearVelocity(b2Vec2(0, 0));
-		//ball->body->
-	
+	if (bodyB->retain_ball == true) {
+		bodyA->body->SetLinearVelocity(b2Vec2(0, 0));
+
+
+		eject_timer_running = true;
+
+		retained_ball = bodyA;
+		retainer = bodyB;
 	}
-
-	/*
-	if(board->body)
-
-	PhysBody* ball;
-	PhysBody* board;
-	
-	if (circles.find(bodyA) != -1) { //For clarity
-		ball = bodyA;
-		board = bodyB;
-	}
-	else if (circles.find(bodyB) != -1) {
-		ball = bodyB;
-		board = bodyA;
-	}
-	else {
-		return;
-	}
-	
-	score += 10;
-	LOG("Ball has hit something!");
-	
-	if (board->body->GetFixtureList()->IsSensor()) {
-		/*
-		if(board->body)
-
-		if (board->audio_fx != NULL) {
-			App->audio->PlayFx(board->audio_fx);
-		}
-
-		score += board->score_value;
-		}
-		*/
-
-
-	
-	
 
 }
+
+
 
 void ModuleSceneIntro::createFlipperJoints()
 {
@@ -427,7 +401,7 @@ void ModuleSceneIntro::createFlipperJoints()
 
 void ModuleSceneIntro::createPistonJoint()
 {
-	//Body to RevoluteJoint the FLipper (Left First)
+	//Create a prismatic joint
 	piston_joint = App->physics->CreateCircle(655, 655, 2, b2_staticBody);
 
 	b2PrismaticJointDef piston_jointDef;
@@ -460,6 +434,4 @@ void ModuleSceneIntro::crateBall()
 	circles.add(App->physics->CreateCircle(620, 600, 12, b2_dynamicBody, 0.0f, 1.0f));
 
 	circles.getLast()->data->listener = this;
-
-
 }

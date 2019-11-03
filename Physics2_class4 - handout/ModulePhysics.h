@@ -33,7 +33,7 @@ public:
 	uint		score_value;
 	
 	bool		retain_ball = false;
-	uint		retain_time;
+	b2Vec2		throw_direction;
 
 };
 

@@ -265,6 +265,8 @@ update_status ModuleSceneIntro::Update()
 
 		case GAME_WAITINGBALL:
 			
+			App->renderer->Blit(ready_text, 260, 350);
+
 			ball_block_sensor->body->SetActive(true);
 
 			ball_block->body->SetActive(false);

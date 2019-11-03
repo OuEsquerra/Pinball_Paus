@@ -106,7 +106,14 @@ public:
 	uint prev_score;
 	uint high_score;
 	
+
 	GameState current_state;
+
+	uint eject_timer = 0;
+	bool eject_timer_running = false;
+	PhysBody* retained_ball;
+	PhysBody* retainer;
+
 
 private:
 
@@ -193,8 +200,8 @@ private:
 	416, 50,
 	416, 100,
 	460, 161,
-	451, 83,
-	483, 83,
+	429, 53,
+	461, 53,
 	498, 167,
 	498, 176,
 	495, 185,
@@ -313,9 +320,9 @@ private:
 	};
 
 	int powersupply[8] = {
-	454, 53,
-	456, 68,
-	478, 68,
-	475, 54
+	434, 53,
+	436, 68,
+	458, 68,
+	455, 54
 	};
 };

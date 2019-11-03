@@ -50,8 +50,12 @@ public:
 	PhysBody* top_center_left;
 	PhysBody* top_center_right;
 	PhysBody* top_right_chain;
+	PhysBody* cooler_sensor;
+	
 
 	p2List<PhysBody*> triangles;
+	p2List<PhysBody*> red_targets;
+	p2List<PhysBody*> red_flags;
 
 	PhysBody* top_jet;
 	PhysBody* left_jet;
@@ -62,9 +66,8 @@ public:
 
 	PhysBody* powersupply_sensor;
 
-	bool ball_sensor_active = false;
-	bool ball_block_active = false;
-
+	bool save_ball = true;
+	int save_ball_timer = 0;
 
 	int ballCount = 1;
 
@@ -80,6 +83,8 @@ public:
 	SDL_Texture* green_light;
 	SDL_Texture* balls_text;
 	SDL_Texture* ready_text;
+	SDL_Texture* high_score_tex;
+	SDL_Texture* prev_score_tex;
 
 	uint bonus_fx;
 	uint flipper_sound;
@@ -91,19 +96,16 @@ public:
 	bool ray_on;
 
 	SDL_Rect board_rect = { 0,0,700,650 };
-
 	SDL_Rect s_to_start_rect = { 0,0,110,42 };
+	SDL_Rect high_score_rect = { 0,0,136,21 };
+	SDL_Rect prev_score_rect = { 0,0,136,21 };
 
-
-	
 	//In Game
 
 	uint score;
 	uint prev_score;
-	uint best_score;
+	uint high_score;
 	
-	uint n_ball;
-
 	GameState current_state;
 
 private:

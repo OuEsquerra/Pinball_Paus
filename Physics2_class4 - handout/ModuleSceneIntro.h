@@ -82,6 +82,10 @@ public:
 	SDL_Texture* ready_text;
 
 	uint bonus_fx;
+	uint flipper_sound;
+	uint jet_sound;
+	uint new_ball;
+	uint throw_ball;
 
 	p2Point<int> ray;
 	bool ray_on;

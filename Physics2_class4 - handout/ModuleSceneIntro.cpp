@@ -1,5 +1,6 @@
 #include "Globals.h"
 #include <string>
+#include "SDL/include/SDL_timer.h"
 #include "Application.h"
 #include "ModuleRender.h"
 #include "ModuleSceneIntro.h"
@@ -8,6 +9,7 @@
 #include "ModuleAudio.h"
 #include "ModulePhysics.h"
 #include "ModuleFonts.h"
+
 
 ModuleSceneIntro::ModuleSceneIntro(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -45,6 +47,11 @@ bool ModuleSceneIntro::Start()
 
 	s_to_start = App->textures->Load("pinball/s_to_start.png");
 
+	balls_text = App->textures->Load("pinball/ball_text.png");
+
+	green_light = App->textures->Load("pinball/green_light.png");
+
+	ready_text = App->textures->Load("pinball/ready_text.png");
 
 	board_tex = App->textures->Load("pinball/clear_board_dark.png");
 
@@ -84,7 +91,7 @@ bool ModuleSceneIntro::Start()
 
 	top_right_chain = App->physics->CreateChain(0, 0, top_right_chain_points, 37, b2_staticBody);
 
-	//FLIPPERS-------------------------------------------------------------------
+	//MOVING PARTS-------------------------------------------------------------------
 	left_flipper = App->physics->CreateFlipper(211, 560, Left_Flipper, 17,1.0f , 0.2f); //17 is the points of the flipper
 
 	right_flipper = App->physics->CreateFlipper(441, 560, Right_Flipper, 17, 1.0f, 0.2f);
@@ -94,11 +101,20 @@ bool ModuleSceneIntro::Start()
 	createFlipperJoints();
 	createPistonJoint();
 
+	//SENSORS------------------------------------------------------------------------------------
 	//Ball Block
 	ball_block_sensor = App->physics->CreateChainSensor(0, 0, ball_block_sensor_points, 9);
 
 
 	ball_block = App->physics->CreateChain(0, 0, ball_block_points, 9, b2_staticBody);
+	
+	
+	powersupply_sensor = App->physics->CreateChainSensor(0, 0, powersupply, 8);
+	powersupply_sensor->retain_ball = true;
+	powersupply_sensor->retain_time = 1000; 
+	
+	
+
 
 	//circles.getLast()->data->listener = this;
 	//n_ball = 1;
@@ -163,8 +179,6 @@ update_status ModuleSceneIntro::Update()
 		b2Vec2 force;
 		force.x = 0;
 
-		force.y = -150;
-
 		force.y = -140;
 
 
@@ -192,7 +206,7 @@ update_status ModuleSceneIntro::Update()
 
 	App->renderer->Blit(cover_board_tex, 0, 0, &board_rect);
 	
-	if (ballCount >= 4)
+	if (ballCount > 4)
 	{
 		current_state = GAME_END;
 	}
@@ -226,6 +240,8 @@ update_status ModuleSceneIntro::Update()
 
 			ball_block->body->SetActive(true);
 
+			App->renderer->Blit(green_light, 30, 27);
+
 			break;
 
 		case GAME_END:
@@ -257,8 +273,13 @@ update_status ModuleSceneIntro::PostUpdate() {
 
 		if (y > board_rect.h) { 
 
-			//DESTROY FALLEN BALLS
-
+			//Destroy Ball & Mouse Joint (If it exists)
+			if (App->physics->foundBody != nullptr)
+			{
+				App->physics->GetWorld()->DestroyJoint(App->physics->mouse_joint);
+				App->physics->mouse_joint = nullptr;
+				App->physics->foundBody = nullptr;
+			};
 			App->physics->GetWorld()->DestroyBody(c->data->body);
 			
 			p2List_item<PhysBody*>* tmp = c->next;
@@ -291,18 +312,40 @@ update_status ModuleSceneIntro::PostUpdate() {
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
 
-	if (circles.find(bodyA) != -1 && bodyB == ball_block_sensor) 
+	//Ignore collisions that involve no balls. It shouldn't happen, but its just in case.
+	if (circles.find(bodyA) != -1 && circles.find(bodyB) != -1) return;
+
+	PhysBody* ball;
+	PhysBody* board;
+
+	if (circles.find(bodyA) != -1) { //For clarity
+		ball = bodyB;
+		board = bodyA;
+	}
+	else if (circles.find(bodyB) != -1) {
+		ball = bodyA;
+		board = bodyB;
+	}
+	else {
+		return;
+	}
+
+	if (bodyB == ball_block_sensor) 
 	{ 
 		current_state = GAME_RUNNING;
 	}
 
 
-	if (circles.find(bodyA) != -1 && (bodyB == top_jet || bodyB == left_jet || bodyB == right_jet) )
+	if ((bodyB == top_jet || bodyB == left_jet || bodyB == right_jet) )
 	{
 		score += 10;
 	}
 
-
+	if (board->body->GetFixtureList()->IsSensor() && board->retain_ball == true) {
+		ball->body->SetLinearVelocity(b2Vec2(0, 0));
+		//ball->body->
+	
+	}
 
 	/*
 	if(board->body)
